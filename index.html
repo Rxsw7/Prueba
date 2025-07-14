@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rxsw7</title>
+    <style>
+        :root {
+            /* Definición de variables CSS para colores profesionales */
+            --primary-dark: #1a1a1a; /* Negro muy oscuro */
+            --secondary-gray: #555555; /* Gris oscuro para texto */
+            --light-gray: #f8f8f8; /* Gris muy claro para fondos sutiles */
+            --accent-blue: #007bff; /* Azul vibrante pero profesional */
+            --accent-green: #28a745; /* Verde vibrante para acentos y botones */
+            --gradient-start: #007bff;
+            --gradient-end: #6610f2; /* Morado para degradados */
+            --navbar-bg: #333333; /* Fondo para la barra de navegación */
+            --navbar-text: #ffffff; /* Color de texto para la barra de navegación */
+            --navbar-hover: #007bff; /* Color al pasar el mouse por la navbar */
+
+            /* Variables para el borde que se "mueve" */
+            --border-color: white;
+            --border-width: 5px; /* Ancho del borde */
+            --crawl-speed: 2s; /* Velocidad de la animación del borde */
+        }
+
+        /* Animación del borde "gusano" */
+        @keyframes crawl-border-top-right {
+            0%, 100% {
+                border-image-source: linear-gradient(to right, var(--border-color) 0%, transparent 0%);
+                border-image-slice: 1;
+            }
+            25% {
+                border-image-source: linear-gradient(to right, var(--border-color) 100%, transparent 100%);
+                border-image-slice: 1;
+            }
+            25.1%, 50% {
+                border-image-source: linear-gradient(to bottom, var(--border-color) 0%, transparent 0%);
+                border-image-slice: 1;
+            }
+            50% {
+                border-image-source: linear-gradient(to bottom, var(--border-color) 100%, transparent 100%);
+                border-image-slice: 1;
+            }
+            50.1%, 75% {
+                border-image-source: linear-gradient(to left, var(--border-color) 0%, transparent 0%);
+                border-image-slice: 1;
+            }
+            75% {
+                border-image-source: linear-gradient(to left, var(--border-color) 100%, transparent 100%);
+                border-image-slice: 1;
+            }
+            75.1%, 100% {
+                border-image-source: linear-gradient(to top, var(--border-color) 0%, transparent 0%);
+                border-image-slice: 1;
+            }
+            100% {
+                border-image-source: linear-gradient(to top, var(--border-color) 100%, transparent 100%);
+                border-image-slice: 1;
+            }
+        }
+
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: rgba(255, 255, 255, 0.7); /* Fondo blanco transparente */
+            color: var(--secondary-gray);
+            margin: 0;
+            padding-top: 60px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        /* Barra de Navegación Superior */
+        .navbar {
+            width: 100%;
+            background-color: var(--navbar-bg);
+            padding: 15px 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar-brand {
+            color: var(--navbar-text);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.5em;
+            margin-right: auto;
+            letter-spacing: 1px;
+            transition: color 0.3s ease;
+        }
+
+        .navbar-brand:hover {
+            color: var(--navbar-hover);
+        }
+
+        .navbar-links {
+            display: flex;
+        }
+
+        .navbar-links a {
+            color: var(--navbar-text);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1em;
+            padding: 0 25px;
+            transition: color 0.3s ease, background-color 0.3s ease;
+            position: relative;
+        }
+
+        .navbar-links a:hover::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 3px;
+            background-color: var(--navbar-hover);
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: width 0.3s ease;
+        }
+
+        .navbar-links a:hover::after {
+            width: 100%;
+        }
+
+        header {
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 4em; /* Ligeramente más pequeño para el subtítulo */
+            margin-bottom: 10px; /* Menos margen para el subtítulo */
+            text-transform: none;
+            letter-spacing: 3px; /* Menos espaciado para un look más compacto */
+            font-weight: 700;
+            background: linear-gradient(to bottom, var(--primary-dark), #000000);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4); /* Sombra más sutil */
+        }
+
+        /* Nuevo estilo para el tagline */
+        .tagline {
+            font-size: 1.5em;
+            color: var(--secondary-gray);
+            margin-bottom: 40px; /* Espacio para separar del carrusel */
+            font-weight: 400;
+            max-width: 700px;
+            line-height: 1.5;
+            text-align: center;
+        }
+
+        #mainContent {
+            display: none;
+        }
+
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 40px;
+            max-width: 1000px;
+            margin-top: 30px;
+        }
+
+        .image-container {
+            flex: 0 0 auto; /* No crecerá ni se encogerá */
+            width: 350px; /* Tamaño fijo para todas las imágenes del menú (ajustado) */
+            background-color: transparent;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-align: center;
+            cursor: pointer;
+            position: relative;
+            /* Añadido para el borde animado */
+            border: var(--border-width) solid transparent;
+            border-image-slice: 1;
+            border-image-outset: 0;
+            border-image-repeat: stretch;
+        }
+
+        .image-container:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+            animation: crawl-border-top-right var(--crawl-speed) linear infinite; /* Aplica la animación al pasar el mouse */
+        }
+
+        .image-container img {
+            width: 100%; /* La imagen ocupa el 100% del ancho del contenedor */
+            height: 220px; /* Altura fija para todas las imágenes (ajustado) */
+            object-fit: cover;
+            display: block;
+            border-radius: 8px;
+        }
+
+        .image-caption {
+            padding: 18px;
+            font-size: 1em;
+            color: var(--secondary-gray);
+            line-height: 1.6;
+            font-weight: 500;
+            /* Asegura que el texto esté centrado y uniforme */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 90px; /* Altura mínima para asegurar uniformidad (ajustado) */
+            text-align: center;
+        }
+
+        footer {
+            margin-top: auto;
+            font-size: 0.85em;
+            color: #aaaaaa;
+            text-align: center;
+            width: 100%;
+            padding: 15px 0;
+            background-color: #ededed;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        /* Media queries para pantallas más pequeñas (responsivo) */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 3em;
+                letter-spacing: 2px;
+            }
+            .tagline {
+                font-size: 1.2em;
+                margin-bottom: 20px;
+            }
+            .content {
+                flex-direction: column;
+                align-items: center;
+                gap: 25px;
+            }
+            .image-container {
+                width: 90%; /* Ajusta el ancho para pantallas pequeñas */
+                min-width: unset;
+            }
+            .image-container img {
+                height: 180px; /* Ajustado para móviles */
+            }
+            .navbar {
+                padding: 10px 15px;
+                flex-direction: column;
+            }
+            .navbar-brand {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+            .navbar-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .navbar-links a {
+                font-size: 0.95em;
+                padding: 5px 10px;
+            }
+
+            /* Ajustes para la sección de características en pantallas pequeñas */
+            #featuresSection .video-and-text-item {
+                flex-direction: column; /* Apila el video y el texto en pantallas pequeñas */
+                align-items: center; /* Centra los elementos apilados */
+            }
+            #featuresSection .video-container {
+                width: 90%; /* El video ocupa casi todo el ancho en móvil */
+                margin-right: 0; /* Elimina margen derecho */
+                margin-bottom: 20px; /* Añade margen inferior para separar del texto */
+                padding-bottom: 50.625%; /* Ajustado para 16:9 con un ancho del 90% */
+            }
+            #featuresSection .video-description {
+                text-align: center; /* Centra el texto en pantallas pequeñas */
+            }
+
+            /* Ajustes del modal de pago para móviles */
+            .payment-modal-content {
+                width: 90%;
+                max-height: 80vh;
+                padding: 20px;
+            }
+            .payment-methods-grid, .communication-grid {
+                grid-template-columns: 1fr; /* Una columna en móvil */
+                gap: 15px;
+            }
+            /* Ajustes para la sección de overview */
+            .overview-section {
+                padding: 0 15px;
+            }
+            .overview-section h2 {
+                font-size: 2em;
+            }
+            .overview-section ul {
+                text-align: left; /* Alinea los puntos de la lista a la izquierda */
+            }
+        }
+
+        /* Contenedores de las diferentes secciones */
+        #mainSection, #pricesSection, #secondMenu, #featuresSection { /* Añadido #featuresSection */
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex-grow: 1;
+            justify-content: flex-start;
+        }
+        #mainSection header {
+            margin-top: 20px;
+            margin-bottom: 30px;
+        }
+
+
+        #pricesSection {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            max-width: 1000px;
+            margin-top: 30px;
+        }
+
+        #pricesSection h2 {
+            font-size: 2.8em;
+            color: var(--primary-dark);
+            margin-bottom: 40px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+            letter-spacing: 2px;
+            font-weight: 600;
+        }
+
+        #secondMenu {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        #secondMenu h2 {
+            font-size: 2.8em;
+            color: var(--primary-dark);
+            margin-bottom: 40px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+            letter-spacing: 2px;
+            font-weight: 600;
+        }
+
+        /* Estilos para la nueva sección de Características */
+        #featuresSection {
+            display: none; /* Oculta por defecto */
+            text-align: center;
+            padding: 20px;
+            width: 100%;
+            max-width: 1000px;
+            margin-top: 30px;
+        }
+
+        #featuresSection h2 {
+            font-size: 2.8em;
+            color: var(--primary-dark);
+            margin-bottom: 40px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+            letter-spacing: 2px;
+            font-weight: 600;
+        }
+
+        /* Contenedor para cada par de video y texto */
+        #featuresSection .video-and-text-item {
+            display: flex;
+            align-items: flex-start; /* Alinea los elementos al inicio (arriba) */
+            gap: 30px; /* Espacio entre el video y el texto */
+            width: 100%;
+            max-width: 900px; /* Ancho máximo para el contenedor del video y texto */
+            margin-bottom: 40px; /* Espacio entre cada pareja de video/texto */
+            text-align: left; /* Alinea el texto dentro de este contenedor a la izquierda */
+        }
+
+        /* Ajuste para el primer elemento si necesitas un margen superior diferente */
+        #featuresSection .video-and-text-item:first-of-type {
+            margin-top: 20px;
+        }
+
+
+        #featuresSection .video-container {
+            position: relative;
+            width: 60%; /* El video ocupa el 60% del ancho del contenedor padre */
+            padding-bottom: 33.75%; /* Ajustado para 16:9 con un ancho del 60% (9 / 16 * 60) */
+            height: 0;
+            overflow: hidden;
+            background-color: black; /* Fondo negro mientras carga o si no hay video */
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            flex-shrink: 0; /* Evita que el video se encoja */
+        }
+
+        #featuresSection .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        /* Nuevo estilo para el texto al lado del video */
+        #featuresSection .video-description {
+            flex: 1; /* Permite que este div ocupe el espacio restante */
+            padding-left: 0; /* Ya tenemos gap, si se necesita más espacio se puede añadir */
+            text-align: left; /* Asegura que el texto dentro de este div esté a la izquierda */
+            color: var(--secondary-gray);
+            display: flex; /* Añadido para controlar el layout interno, especialmente para el botón */
+            flex-direction: column; /* Apila el texto y el botón */
+            justify-content: space-between; /* Espacia el contenido y el botón */
+        }
+
+        #featuresSection .video-description h3 {
+            color: var(--primary-dark);
+            font-size: 1.8em;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+
+        #featuresSection .video-description p {
+            line-height: 1.7;
+            margin-bottom: 10px;
+        }
+
+        #featuresSection .video-description ul {
+            list-style: none; /* Elimina los marcadores de lista por defecto */
+            padding: 0;
+            margin-bottom: 20px;
+        }
+
+        #featuresSection .video-description ul li {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+
+        #featuresSection .video-description ul li strong {
+            color: var(--accent-blue); /* Color para resaltar los puntos clave */
+        }
+
+        /* Estilos para el nuevo botón "Comprar" */
+        .buy-button {
+            background-color: var(--accent-green);
+            color: white;
+            padding: 15px 25px; /* Ajustado para una forma más cuadrada */
+            border: none;
+            border-radius: 8px; /* Bordes ligeramente redondeados */
+            cursor: pointer;
+            font-size: 1.2em;
+            font-weight: 700;
+            margin-top: 20px; /* Espacio superior para separar del texto */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            align-self: flex-start; /* Alinea el botón a la izquierda dentro del flex container */
+            min-width: 120px; /* Ancho mínimo para el botón */
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .buy-button:hover {
+            background-color: #218838; /* Un verde un poco más oscuro al pasar el mouse */
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Estilo específico para el botón "Explorar Productos" de la página principal */
+        .main-page-buy-button {
+            background-color: var(--accent-blue); /* Otro color para diferenciar */
+            margin-top: 40px; /* Más espacio */
+            align-self: center; /* Centrarlo en la sección */
+        }
+        .main-page-buy-button:hover {
+            background-color: #0056b3;
+        }
+
+
+        #secondMenu .content, #pricesSection .content {
+            margin-top: 0;
+            gap: 25px;
+        }
+
+        /* Botón de Retroceso */
+        .back-button {
+            background-color: var(--accent-blue);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-top: 40px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            display: none;
+        }
+
+        .back-button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        /* --- Estilos para el carrusel de imágenes --- */
+        .image-carousel-wrapper {
+            width: 100%;
+            max-width: 1000px;
+            overflow: hidden;
+            margin-top: 20px;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            background-color: transparent;
+            padding: 15px 0;
+        }
+
+        .image-carousel-track {
+            display: flex;
+            width: fit-content;
+            animation: scroll-left 30s linear infinite;
+        }
+
+        .image-carousel-track:hover {
+            animation-play-state: paused;
+        }
+
+        /* Sobreescribe los estilos generales de .image-container para el carrusel */
+        .image-carousel-wrapper .image-container {
+            flex: 0 0 auto;
+            width: 380px; /* Tamaño más grande para el carrusel (ajustado) */
+            margin: 0 15px;
+            box-shadow: none;
+            transform: none;
+            /* Se ha establecido un `cursor: pointer` para los contenedores de imagen del carrusel en el JS para indicar que son clicables */
+            border: none;
+            animation: none;
+        }
+
+        .image-carousel-wrapper .image-container img {
+            height: 250px; /* Altura más grande para el carrusel (ajustado) */
+            border-radius: 8px;
+            border: 5px solid white; /* Mantiene el marco blanco original para el carrusel */
+        }
+        /* Asegura que la altura del caption sea consistente en el carrusel */
+        .image-carousel-wrapper .image-container .image-caption {
+            min-height: 90px; /* Ajusta según sea necesario para el carrusel (ajustado) */
+        }
+
+        /* Definición de la animación de scroll */
+        @keyframes scroll-left {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+        /* --- Fin de estilos para el carrusel --- */
+
+        /* --- Estilos para la nueva sección de "Overview" en la página principal --- */
+        .overview-section {
+            width: 100%;
+            max-width: 900px; /* Ancho máximo para el contenido del overview */
+            margin-top: 60px; /* Espacio superior para separar del carrusel */
+            padding: 40px;
+            background-color: #ffffff; /* Fondo blanco para el recuadro */
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .overview-section h2 {
+            font-size: 2.5em;
+            color: var(--primary-dark);
+            margin-bottom: 25px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .overview-section p {
+            font-size: 1.15em;
+            line-height: 1.8;
+            color: var(--secondary-gray);
+            margin-bottom: 20px;
+        }
+
+        .overview-section ul {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px; /* Espacio entre los elementos de la lista */
+        }
+
+        .overview-section ul li {
+            background-color: var(--light-gray);
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 500;
+            color: var(--primary-dark);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .overview-section ul li:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        /* --- Estilos para el Modal de Métodos de Pago --- */
+        .payment-modal {
+            display: none; /* Oculto por defecto */
+            position: fixed;
+            z-index: 1001; /* Por encima de la navbar */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.6); /* Fondo semi-transparente */
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px); /* Efecto de desenfoque */
+        }
+
+        .payment-modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            width: 90%;
+            max-width: 600px;
+            position: relative;
+            animation: fadeInScale 0.3s ease-out;
+            text-align: center;
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .payment-modal-content h3 {
+            color: var(--primary-dark);
+            font-size: 2em;
+            margin-bottom: 25px;
+            border-bottom: 2px solid var(--accent-blue);
+            padding-bottom: 10px;
+            display: inline-block; /* Para que el borde se ajuste al texto */
+        }
+
+        .close-button {
+            color: #aaa;
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: var(--primary-dark);
+            text-decoration: none;
+        }
+
+        .payment-methods-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* Dos columnas */
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .payment-method-card {
+            background-color: var(--light-gray);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 120px; /* Altura fija para uniformidad */
+        }
+
+        .payment-method-card:hover {
+            border-color: var(--accent-blue);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transform: translateY(-3px);
+        }
+
+        .payment-method-card.selected {
+            border-color: var(--accent-green);
+            background-color: #e6ffe6; /* Fondo más claro para el seleccionado */
+            box-shadow: 0 0 0 3px var(--accent-green); /* Borde más pronunciado */
+        }
+
+        .payment-method-card h4 {
+            color: var(--primary-dark);
+            font-size: 1.3em;
+            margin-top: 10px;
+            margin-bottom: 0;
+        }
+
+        .payment-inputs {
+            background-color: #f9f9f9;
+            padding: 25px;
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        .payment-inputs label {
+            font-weight: 600;
+            color: var(--primary-dark);
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .payment-inputs input[type="text"],
+        .payment-inputs input[type="email"],
+        .payment-inputs input[type="number"] {
+            width: calc(100% - 20px);
+            padding: 12px 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1em;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .payment-inputs input[type="text"]:focus,
+        .payment-inputs input[type="email"]:focus,
+        .payment-inputs input[type="number"]:focus {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+            outline: none;
+        }
+
+        /* Botón de Siguiente/Realizar Pago */
+        .next-step-button { /* Renombrado */
+            background-color: var(--accent-green);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2em;
+            font-weight: 700;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            margin-top: 20px; /* Para espacio si aparece después de inputs */
+        }
+
+        .next-step-button:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+
+        /* Estilos para las opciones de comunicación */
+        .communication-options {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .communication-options p {
+            font-size: 1.3em;
+            color: var(--primary-dark);
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
+        .communication-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* Tres columnas */
+            gap: 20px;
+        }
+
+        .communication-card {
+            background-color: var(--light-gray);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100px; /* Altura fija */
+            text-decoration: none; /* Para los enlaces */
+            color: var(--primary-dark);
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .communication-card:hover {
+            border-color: var(--accent-blue);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transform: translateY(-3px);
+        }
+
+        .communication-card img {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <a href="#" class="navbar-brand" id="navBrand">Rxsw7</a>
+        <div class="navbar-links">
+            <a href="#" id="navMainMenu">Menu Principal</a> <a href="#" id="navModulos">Módulos</a>
+            <a href="#" id="navCaracteristicas">Características</a>
+            <a href="#" id="navPrecios">Precios</a>
+        </div>
+    </div>
+
+    <div id="mainSection">
+        <header id="mainHeader">
+            <h1>Rxsw7</h1>
+            <p class="tagline">Herramientas Avanzadas para Optimización de SEO y Web. Potencia tu Presencia Digital.</p>
+        </header>
+
+        <div class="image-carousel-wrapper">
+            <div class="image-carousel-track">
+                <div class="image-container">
+                    <img src="Rxsw7.jpg" alt="El Mejor Programa para Keywords">
+                    <p class="image-caption">El Mejor Programa para Keywords</p>
+                </div>
+                <div class="image-container">
+                    <img src="Extractor.png" alt="Programa Rápida para Extractor de URLs">
+                    <p class="image-caption">Programa Rápida para Extractor de URLs</p>
+                </div>
+                <div class="image-container">
+                    <img src="Parametros.png" alt="El Mejor Programa Para Parámetros">
+                    <p class="image-caption">El Mejor Programa Para Parámetros</p>
+                </div>
+                <div class="image-container">
+                    <img src="URL.png" alt="El mejor URL Crawler Para Obtener URLs">
+                    <p class="image-caption">El mejor URL Crawler Para Obtener URLs</p>
+                </div>
+                <div class="image-container">
+                    <img src="kw2.png" alt="Programa Para Obtener Keywords v1">
+                    <p class="image-caption">Programa Para Obtener Keywords v1</p>
+                </div>
+                <div class="image-container">
+                    <img src="Rxsw7.jpg" alt="El Mejor Programa para Keywords">
+                    <p class="image-caption">El Mejor Programa para Keywords</p>
+                </div>
+                <div class="image-container">
+                    <img src="Extractor.png" alt="Programa Rápida para Extractor de URLs">
+                    <p class="image-caption">Programa Rápida para Extractor de URLs</p>
+                </div>
+                <div class="image-container">
+                    <img src="Parametros.png" alt="El Mejor Programa Para Parámetros">
+                    <p class="image-caption">El Mejor Programa Para Parámetros</p>
+                </div>
+                <div class="image-container">
+                    <img src="URL.png" alt="El mejor URL Crawler Para Obtener URLs">
+                    <p class="image-caption">El mejor URL Crawler Para Obtener URLs</p>
+                </div>
+                <div class="image-container">
+                    <img src="kw2.png" alt="Programa Para Obtener Keywords v1">
+                    <p class="image-caption">Programa Para Obtener Keywords v1</p>
+                </div>
+            </div>
+        </div>
+        <div id="mainContent" class="content">
+        </div>
+
+        <section class="overview-section">
+            <h2>Transforma tu Estrategia Digital con Rxsw7</h2>
+            <p>En Rxsw7, ofrecemos una suite de herramientas de software diseñadas para potenciar tu presencia online y optimizar tus proyectos digitales. Desde la investigación de palabras clave hasta el rastreo de URLs y la gestión de parámetros, nuestras soluciones te proporcionan el control y la eficiencia que necesitas para dominar el panorama digital.</p>
+            <p>Descubre cómo nuestros módulos innovadores pueden ayudarte a:</p>
+            <ul>
+                <li>📊 Identificar las mejores palabras clave para tu nicho.</li>
+                <li>🔗 Extraer URLs de forma rápida y precisa.</li>
+                <li>⚙️ Personalizar cada aspecto de tus operaciones con gestión de parámetros avanzada.</li>
+                <li>🔎 Rastrea y analiza la estructura web con nuestro potente URL Crawler.</li>
+            </ul>
+            <button class="buy-button main-page-buy-button">Explorar Productos</button>
+        </section>
+
+    </div>
+
+    <div id="secondMenu">
+        <h2>Nuestros Módulos</h2>
+        <div class="content">
+            <div class="image-container">
+                <img src="Rxsw7.jpg" alt="El Mejor Programa para Keywords">
+                <p class="image-caption">El Mejor Programa para Keywords</p>
+            </div>
+            <div class="image-container">
+                <img src="Extractor.png" alt="Programa Rápido para Extractor de URLs">
+                <p class="image-caption">Programa Rápido para Extractor de URLs</p>
+            </div>
+            <div class="image-container">
+                <img src="Parametros.png" alt="El Mejor Programa Para Parámetros">
+                <p class="image-caption">El Mejor Programa Para Parámetros</p>
+            </div>
+            <div class="image-container">
+                <img src="URL.png" alt="El mejor URL Crawler Para Obtener URLs">
+                <p class="image-caption">El mejor URL Crawler Para Obtener URLs</p>
+            </div>
+            <div class="image-container">
+                <img src="kw2.png" alt="Programa Para Obtener Keywords v1">
+                <p class="image-caption">Programa Para Obtener Keywords v1</p>
+            </div>
+        </div>
+        <button class="back-button" id="backButtonFromSecondMenu">Retroceder al Menú Principal</button>
+    </div>
+
+    <div id="pricesSection">
+        <h2>Nuestros Planes y Precios</h2>
+        <div class="content">
+            <div class="image-container price-plan-card" data-plan="basico">
+                <img src="Rxsw7.jpg" alt="Plan Básico">
+                <p class="image-caption">**Plan Básico:** Ideal para empezar. Características limitadas. <br> $9.99/mes</p>
+            </div>
+            <div class="image-container price-plan-card" data-plan="premium">
+                <img src="Extractor.png" alt="Plan Premium">
+                <p class="image-caption">**Plan Premium:** Todas las características. Soporte 24/7. <br> $29.99/mes</p>
+            </div>
+            <div class="image-container price-plan-card" data-plan="empresarial">
+                <img src="Parametros.png" alt="Plan Empresarial">
+                <p class="image-caption">**Plan Empresarial:** Soluciones personalizadas para grandes equipos. <br> Contáctanos</p>
+            </div>
+            <div class="image-container price-plan-card" data-plan="avanzado">
+                <img src="URL.png" alt="Plan Avanzado">
+                <p class="image-caption">**Plan Avanzado:** Para usuarios exigentes. <br> $49.99/mes</p>
+            </div>
+            <div class="image-container price-plan-card" data-plan="ilimitado">
+                <img src="kw2.png" alt="Plan Ilimitado">
+                <p class="image-caption">**Plan Ilimitado:** Máximo rendimiento. <br> $99.99/mes</p>
+            </div>
+        </div>
+        <button class="back-button" id="backButtonFromPrices">Retroceder al Menú Principal</button>
+    </div>
+
+    <div id="featuresSection">
+        <h2>Características Destacadas</h2>
+        <p>Descubre las potentes funcionalidades de Rxsw7 en estos videos.</p>
+
+        <div class="video-and-text-item">
+            <div class="video-container">
+                <iframe
+                    src="https://www.youtube.com/embed/inKtqiF-yOM?si=L7cwCW8buQzCl6fE" title="Video de Introducción a Rxsw7" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+            </div>
+            <div class="video-description">
+                <h3>Video 1: Introducción a Rxsw7</h3>
+                <p>Este video te ofrece una visión exhaustiva de cómo nuestras **herramientas avanzadas** pueden transformar tus proyectos. Aprenderás sobre:</p>
+                <ul>
+                    <li><strong>Análisis de Keywords:</strong> Cómo optimizar tu contenido para un mayor alcance.</li>
+                    <li><strong>Extractor de URLs:</strong> Descubre la eficiencia en la recolección de datos.</li>
+                    <li><strong>Gestión de Parámetros:</strong> Control total sobre tus configuraciones personalizadas.</li>
+                    <li><strong>URL Crawler:</b> Explora la web y obtén las URLs que necesitas con precisión.</li>
+                </ul>
+                <p>¡Prepárate para llevar tus habilidades al siguiente nivel con Rxsw7!</p>
+                <button class="buy-button">Comprar</button>
+            </div>
+        </div>
+
+        <div class="video-and-text-item">
+            <div class="video-container">
+                <iframe
+                    src="https://www.youtube.com/embed/TU_A3z3u-4M?si=z8u4HqR_aK334J7V" title="Video de Uso de Extractor de URLs" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+            </div>
+            <div class="video-description">
+                <h3>Video 2: Extractor de URLs en Acción</h3>
+                <p>En este tutorial, te mostramos paso a paso cómo utilizar nuestra herramienta de **Extractor de URLs**. Conoce las mejores prácticas para:</p>
+                <ul>
+                    <li><strong>Recolección rápida:</strong> Extrae URLs de forma eficiente.</li>
+                    <li><strong>Filtrado avanzado:</b> Obtén solo las URLs que te interesan.</li>
+                    <li><strong>Exportación de datos:</strong> Guarda tus listas de URLs en diferentes formatos.</li>
+                    <li><strong>Automatización:</strong> Configura tareas repetitivas para ahorrar tiempo.</li>
+                </ul>
+                <p>¡Simplifica tu trabajo de recopilación de datos hoy mismo!</p>
+                <button class="buy-button">Comprar</button>
+            </div>
+        </div>
+
+        <div class="video-and-text-item">
+            <div class="video-container">
+                <iframe
+                    src="http://googleusercontent.com/youtube.com/2" title="Video sobre Gestión de Parámetros" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+            </div>
+            <div class="video-description">
+                <h3>Video 3: Dominando la Gestión de Parámetros</h3>
+                <p>Descubre el poder de la **Gestión de Parámetros** con este video. Aprende a configurar y optimizar tus proyectos mediante:</p>
+                <ul>
+                    <li><strong>Parámetros Personalizados:</strong> Adapta la herramienta a tus necesidades específicas.</li>
+                    <li><strong>Configuraciones Avanzadas:</strong> Controla cada aspecto de tus operaciones.</li>
+                    <li><strong>Flexibilidad Total:</strong> Modifica parámetros sobre la marcha para resultados dinámicos.</li>
+                    <li><strong>Integración Sencilla:</strong> Combina con otras herramientas de forma fluida.</li>
+                </ul>
+                <p>¡Maximiza la personalización y eficiencia de tus tareas!</p>
+                <button class="buy-button">Comprar</button>
+            </div>
+        </div>
+
+        <div class="video-and-text-item">
+            <div class="video-container">
+                <iframe
+                    src="http://googleusercontent.com/youtube.com/3" title="Video de URL Crawler Avanzado" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+            </div>
+            <div class="video-description">
+                <h3>Video 4: Explorando con URL Crawler Avanzado</h3>
+                <p>Este video te guiará a través de las capacidades avanzadas de nuestro **URL Crawler**. Aprende a:</p>
+                <ul>
+                    <li><strong>Rastreo Profundo:</strong> Navega por sitios web complejos con facilidad.</li>
+                    <li><strong>Detección de Enlaces Rotos:</b> Mantén la salud de tus enlaces.</li>
+                    <li><strong>Análisis de Estructura Web:</strong> Comprende la arquitectura de cualquier sitio.</li>
+                    <li><strong>Generación de Informes:</strong> Obtén reportes detallados para tus análisis.</li>
+                </ul>
+                <p>¡Conviértete en un experto en el rastreo web con nuestra potente herramienta!</p>
+                <button class="buy-button">Comprar</button>
+            </div>
+        </div>
+
+        <div class="video-and-text-item">
+            <div class="video-container">
+                <iframe
+                    src="http://googleusercontent.com/youtube.com/4" title="Video de Seguimiento de Posiciones SEO" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+            </div>
+            <div class="video-description">
+                <h3>Video 5: Seguimiento de Posiciones SEO</h3>
+                <p>Descubre cómo monitorear y mejorar el posicionamiento de tus palabras clave con nuestra herramienta de **Seguimiento de Posiciones SEO**. Este video cubre:</p>
+                <ul>
+                    <li><strong>Monitoreo de Ranking:</strong> Consulta la posición de tus palabras clave en buscadores.</li>
+                    <li><strong>Identificación de Oportunidades:</strong> Encuentra palabras clave con alto potencial de mejora.</li>
+                    <li><strong>Alertas Personalizadas:</strong> Recibe notificaciones sobre cambios importantes en el ranking.</li>
+                    <li><strong>Análisis Competitivo:</strong> Compara tu rendimiento con el de tus competidores directos.</li>
+                </ul>
+                <p>¡Asegura la visibilidad de tu contenido y domina el SEO con Rxsw7!</p>
+                <button class="buy-button">Comprar</button>
+            </div>
+        </div>
+
+        <p>En Rxsw7, nos esforzamos por ofrecerte las herramientas más avanzadas para optimizar tus proyectos.</p>
+        <button class="back-button" id="backButtonFromFeatures">Retroceder al Menú Principal</button>
+    </div>
+
+    <footer>
+        <p>© 2025 Rxsw7. Todos los derechos reservados.</p>
+    </footer>
+
+    <div id="paymentModal" class="payment-modal">
+        <div class="payment-modal-content">
+            <span class="close-button">×</span>
+
+            <div id="paymentSelectionStep">
+                <h3>Selecciona tu Método de Pago</h3>
+                <div class="payment-methods-grid">
+                    <div class="payment-method-card" data-method="yape">
+                        <img src="yape_logo.png" alt="Logo Yape" style="width: 50px; height: 50px;">
+                        <h4>Yape (Perú)</h4>
+                    </div>
+                    <div class="payment-method-card" data-method="paypal">
+                        <img src="paypal_logo.png" alt="Logo PayPal" style="width: 70px; height: 50px;">
+                        <h4>PayPal</h4>
+                    </div>
+                    <div class="payment-method-card" data-method="binance">
+                        <img src="binance_logo.png" alt="Logo Binance" style="width: 50px; height: 50px;">
+                        <h4>Binance</h4>
+                    </div>
+                    <div class="payment-method-card" data-method="argentina">
+                        <img src="argentina_flag.png" alt="Bandera Argentina" style="width: 70px; height: 50px;">
+                        <h4>Transferencia (Argentina)</h4>
+                    </div>
+                </div>
+
+                <div id="paymentDetails" class="payment-inputs">
+                    <p>Por favor, selecciona un método de pago.</p>
+                </div>
+
+                <button class="next-step-button" id="nextPaymentStepButton" style="display: none;">Siguiente</button>
+            </div>
+
+            <div id="communicationStep" class="communication-options">
+                <p>¿De qué manera te quieres comunicar con el Dueño?</p>
+                <div class="communication-grid">
+                    <a href="https://t.me/Rxsw7" target="_blank" class="communication-card">
+                        <img src="telegram_logo.png" alt="Logo Telegram">
+                        <span>Telegram</span>
+                    </a>
+                    <a href="https://discord.com/users/yourdiscordid" target="_blank" class="communication-card">
+                        <img src="discord_logo.png" alt="Logo Discord">
+                        <span>Discord</span>
+                    </a>
+                    <a href="https://www.instagram.com/alejandrohc.21?igsh=ODUyeDVtYmJmMGRm" target="_blank" class="communication-card">
+                        <img src="instagram_logo.png" alt="Logo Instagram">
+                        <span>Instagram</span>
+                    </a>
+                </div>
+                <button class="next-step-button" id="backToPaymentButton">Volver</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Referencias a las secciones y botones
+        const mainSection = document.getElementById('mainSection');
+        const secondMenu = document.getElementById('secondMenu');
+        const pricesSection = document.getElementById('pricesSection');
+        const featuresSection = document.getElementById('featuresSection');
+
+        const navBrand = document.getElementById('navBrand');
+        const navMainMenu = document.getElementById('navMainMenu'); // Nueva referencia al enlace "Menu Principal"
+        const navPrecios = document.getElementById('navPrecios');
+        const navCaracteristicas = document.getElementById('navCaracteristicas');
+        const navModulos = document.getElementById('navModulos');
+
+        const backButtonFromSecondMenu = document.getElementById('backButtonFromSecondMenu');
+        const backButtonFromPrices = document.getElementById('backButtonFromPrices');
+        const backButtonFromFeatures = document.getElementById('backButtonFromFeatures');
+
+        const buyButtons = document.querySelectorAll('.buy-button'); // Incluye los nuevos botones "Explorar Productos"
+
+        // Referencias al Modal de Pago y Comunicación
+        const paymentModal = document.getElementById('paymentModal');
+        const closeButton = document.querySelector('.payment-modal .close-button');
+        const pricePlanCards = document.querySelectorAll('.price-plan-card');
+        const paymentMethodCards = document.querySelectorAll('.payment-method-card');
+        const paymentDetailsDiv = document.getElementById('paymentDetails');
+        const nextPaymentStepButton = document.getElementById('nextPaymentStepButton');
+
+        const paymentSelectionStep = document.getElementById('paymentSelectionStep');
+        const communicationStep = document.getElementById('communicationStep');
+        const backToPaymentButton = document.getElementById('backToPaymentButton');
+
+        let selectedPlan = null;
+        let selectedPaymentMethod = null;
+
+        // Función para mostrar una sección y ocultar las otras
+        function showSection(sectionToShow) {
+            mainSection.style.display = 'none';
+            secondMenu.style.display = 'none';
+            pricesSection.style.display = 'none';
+            featuresSection.style.display = 'none';
+            paymentModal.style.display = 'none'; // Asegúrate de ocultar el modal también
+
+            sectionToShow.style.display = 'flex';
+
+            // Mostrar u ocultar botones de retroceso según la sección
+            backButtonFromSecondMenu.style.display = 'none';
+            backButtonFromPrices.style.display = 'none';
+            backButtonFromFeatures.style.display = 'none';
+
+            if (sectionToShow === secondMenu) {
+                backButtonFromSecondMenu.style.display = 'block';
+            } else if (sectionToShow === pricesSection) {
+                backButtonFromPrices.style.display = 'block';
+            } else if (sectionToShow === featuresSection) {
+                backButtonFromFeatures.style.display = 'block';
+            }
+        }
+
+        // --- Funcionalidad del Modal de Pago y Comunicación ---
+        function openPaymentModal() {
+            paymentModal.style.display = 'flex'; // Usar flex para centrar
+
+            // Mostrar el primer paso (selección de pago)
+            paymentSelectionStep.style.display = 'block';
+            communicationStep.style.display = 'none'; // Asegurarse de que el paso de comunicación esté oculto
+
+            // Resetear la selección y los campos de entrada
+            paymentMethodCards.forEach(card => card.classList.remove('selected'));
+            paymentDetailsDiv.innerHTML = '<p>Por favor, selecciona un método de pago.</p>'; // Resetear el texto de instrucción
+            paymentDetailsDiv.style.display = 'block'; // Asegurarse de que el div de detalles esté visible
+            nextPaymentStepButton.style.display = 'none';
+            selectedPaymentMethod = null; // Resetear método de pago seleccionado
+        }
+
+        function closePaymentModal() {
+            paymentModal.style.display = 'none';
+        }
+
+        // Clic en el botón de cerrar del modal
+        closeButton.addEventListener('click', closePaymentModal);
+
+        // Clic fuera del contenido del modal para cerrar
+        window.addEventListener('click', (event) => {
+            if (event.target === paymentModal) {
+                closePaymentModal();
+            }
+        });
+
+        // Event listener para las tarjetas de método de pago
+        paymentMethodCards.forEach(card => {
+            card.addEventListener('click', () => {
+                // Remover 'selected' de todas las tarjetas
+                paymentMethodCards.forEach(c => c.classList.remove('selected'));
+                // Añadir 'selected' a la tarjeta clicada
+                card.classList.add('selected');
+
+                selectedPaymentMethod = card.dataset.method; // Guardar el método seleccionado
+
+                // Actualizar el texto del paymentDetailsDiv, pero sin mostrar campos de entrada
+                paymentDetailsDiv.innerHTML = `<p>Has seleccionado: <strong>${card.dataset.method.toUpperCase()}</strong>. Haz clic en 'Siguiente' para contactar al dueño.</p>`;
+                nextPaymentStepButton.style.display = 'block'; // Mostrar botón Siguiente
+            });
+        });
+
+        // Evento para el botón "Siguiente" del paso de pago
+        nextPaymentStepButton.addEventListener('click', () => {
+            if (!selectedPaymentMethod) {
+                alert('Por favor, selecciona un método de pago antes de continuar.');
+                return;
+            }
+
+            // Ocultar el paso de selección de pago y mostrar el paso de comunicación
+            paymentSelectionStep.style.display = 'none';
+            communicationStep.style.display = 'block';
+        });
+
+        // Evento para el botón "Volver" del paso de comunicación
+        backToPaymentButton.addEventListener('click', () => {
+            communicationStep.style.display = 'none';
+            paymentSelectionStep.style.display = 'block';
+            // No reseteamos la selección ni ocultamos el botón "Siguiente" al volver.
+            // Si el usuario ya había seleccionado un método, se mantiene visualmente.
+        });
+
+
+        // --- Eventos de clic para la navegación principal ---
+        navBrand.addEventListener('click', (e) => {
+            e.preventDefault();
+            showSection(mainSection);
+        });
+
+        // Nuevo evento para el enlace "Menu Principal"
+        navMainMenu.addEventListener('click', (e) => {
+            e.preventDefault();
+            showSection(mainSection);
+        });
+
+        navModulos.addEventListener('click', (e) => {
+            e.preventDefault();
+            showSection(secondMenu);
+        });
+
+        navCaracteristicas.addEventListener('click', (e) => {
+            e.preventDefault();
+            showSection(featuresSection);
+        });
+
+        navPrecios.addEventListener('click', (e) => {
+            e.preventDefault();
+            showSection(pricesSection);
+        });
+
+        // Evento para los botones de retroceso
+        backButtonFromSecondMenu.addEventListener('click', () => {
+            showSection(mainSection);
+        });
+
+        backButtonFromPrices.addEventListener('click', () => {
+            showSection(mainSection);
+        });
+
+        backButtonFromFeatures.addEventListener('click', () => {
+            showSection(mainSection);
+        });
+
+        // Evento para las imágenes del carrusel principal
+        const carouselImageContainers = document.querySelectorAll('.image-carousel-wrapper .image-container');
+        carouselImageContainers.forEach(container => {
+            container.addEventListener('click', () => {
+                showSection(featuresSection);
+            });
+        });
+
+        // Evento para los botones "Comprar" en la sección de características y el nuevo "Explorar Productos"
+        buyButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                showSection(pricesSection); // Redirige a la sección de precios
+            });
+        });
+
+        // Evento para las tarjetas de plan de precios (que ahora abren el modal)
+        pricePlanCards.forEach(card => {
+            card.addEventListener('click', () => {
+                selectedPlan = card.dataset.plan; // Guarda el plan seleccionado
+                openPaymentModal();
+            });
+        });
+
+        // Asegurarse de que la sección principal esté visible al cargar
+        showSection(mainSection);
+    </script>
+
+</body>
+</html>
